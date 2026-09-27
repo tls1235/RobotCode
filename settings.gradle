@@ -11,11 +11,11 @@ pluginManagement {
             if (publicFolder == null) {
                 publicFolder = "C:\\Users\\Public"
             }
-            def homeRoot = new File(publicFolder, "wpilib")
+            def homeRoot = new File(publicFolder, "robotics")
             frcHome = new File(homeRoot, frcYear)
         } else {
             def userFolder = System.getProperty("user.home")
-            def homeRoot = new File(userFolder, "wpilib")
+            def homeRoot = new File(userFolder, "robotics")
             frcHome = new File(homeRoot, frcYear)
         }
         def frcHomeMaven = new File(frcHome, 'maven')
