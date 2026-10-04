@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Driver extends SubsystemBase {
@@ -35,6 +36,7 @@ public class Driver extends SubsystemBase {
     forLs.set(0 - forLs.getEncoder().getPosition() * 1 / 100);
     backRs.set(0 - backRs.getEncoder().getPosition() * 1 / 100);
     backLs.set(0 - backLs.getEncoder().getPosition() * 1 / 100);
+    CommandScheduler.getInstance().run();
   }
 
   public static Driver getInstance() {

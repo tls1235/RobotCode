@@ -8,6 +8,7 @@ import frc.robot.commands.Drive;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.Autos;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -38,6 +39,7 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
+    CommandScheduler.getInstance().schedule(drive);
   }
 
   public Command getAutonomousCommand() {
