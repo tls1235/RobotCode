@@ -39,7 +39,6 @@ public class RobotContainer {
   }
 
   private void configureBindings() {
-    CommandScheduler.getInstance().schedule(drive);
   }
 
   public Command getAutonomousCommand() {

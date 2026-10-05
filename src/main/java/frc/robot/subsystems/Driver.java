@@ -36,7 +36,6 @@ public class Driver extends SubsystemBase {
     forLs.set(0 - forLs.getEncoder().getPosition() * 1 / 100);
     backRs.set(0 - backRs.getEncoder().getPosition() * 1 / 100);
     backLs.set(0 - backLs.getEncoder().getPosition() * 1 / 100);
-    CommandScheduler.getInstance().run();
   }
 
   public static Driver getInstance() {
