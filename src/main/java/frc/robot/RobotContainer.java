@@ -4,9 +4,8 @@
 
 package frc.robot;
 
-import frc.robot.commands.Drive;
+import frc.robot.commands.DriveCommand;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.Autos;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -24,7 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
-  public Drive drive = new Drive(() -> {
+  public DriveCommand drive = new DriveCommand(() -> {
     return -m_driverController.getLeftY();
   }, () -> {
     return m_driverController.getRightX();

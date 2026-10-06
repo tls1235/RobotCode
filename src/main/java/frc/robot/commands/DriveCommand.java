@@ -5,13 +5,13 @@ import java.util.function.Supplier;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.Driver;
 
-public class Drive extends Command {
-  private Supplier<Double> speed;
-  private Supplier<Double> turn;
+public class DriveCommand extends Command {
+  private Supplier<Double> leftStick_Y;
+  private Supplier<Double> rightStick_X;
 
-  public Drive(Supplier<Double> speed, Supplier<Double> turn) {
-    this.speed = speed;
-    this.turn = turn;
+  public DriveCommand(Supplier<Double> speed, Supplier<Double> turn) {
+    this.leftStick_Y = speed;
+    this.rightStick_X = turn;
     addRequirements(Driver.getInstance());
   }
 
@@ -23,7 +23,7 @@ public class Drive extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Driver.getInstance().drive(speed.get(), turn.get());
+    Driver.getInstance().drive(leftStick_Y.get(), rightStick_X.get());
   }
 
   // Called once the command ends or is interrupted.

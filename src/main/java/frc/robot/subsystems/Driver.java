@@ -45,7 +45,9 @@ public class Driver extends SubsystemBase {
     return instance;
   }
 
-  public void drive(Double speed, Double turn) {
+  public void drive(Double leftStick_Y, Double turn) {
+    double speed = leftStick_Y;
+
     if (speed + turn / 2 > MAX_SPEED || speed - turn / 2 > MAX_SPEED) {
       speed = MAX_SPEED - turn / 2;
     }
