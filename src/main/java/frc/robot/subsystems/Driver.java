@@ -12,8 +12,8 @@ public class Driver extends SubsystemBase {
 
   final double MAX_SPEED = 0.3;
   final double SPEED_MULT = 0.2;
-  final double KP = 1 / 1000;
-  final double I = 0.02;
+  double robotTargetAngle = 0;
+  double wheelTargetAngle = 0;
 
   // all variables NEED to start with a private and m_[NAME]
   // the motor names are not clear and coherent name them sonthing like
@@ -45,8 +45,9 @@ public class Driver extends SubsystemBase {
 
   @Override
   public void periodic() {
-    if (getCurrentCommand() != null) {
-      turnWheelsTo(0);
+    double avg = (m_backLs.get() + m_backRs.get() + m_forwLs.get() + m_forwRs.get()) / 4;
+    if (Math.abs(avg) <= 0) {
+      turnWheelsTo(wheelTargetAngle, 1 / 1000.0, 0.02);
     }
   }
 
@@ -59,7 +60,8 @@ public class Driver extends SubsystemBase {
 
   // parameters names should be consistent
   public void drive(double leftStick_Y) {
-    turnWheelsTo(0);
+    wheelTargetAngle = 0;
+    turnWheelsTo(wheelTargetAngle, 1 / 1000.0, 0.02);
 
     m_forwL.set(-leftStick_Y * SPEED_MULT);
     m_backL.set(-leftStick_Y * SPEED_MULT);
@@ -67,26 +69,45 @@ public class Driver extends SubsystemBase {
     m_backR.set(-leftStick_Y * SPEED_MULT);
   }
 
-  public void turn(double rightStick_x) {
-    rotateWheelsToTurn(45);
+  public void turn(double speed) {
+    rotateWheelsToTurn(45, 1 / 1000.0, 0.02);
 
-    m_forwL.set(rightStick_x * SPEED_MULT);
-    m_backL.set(rightStick_x * SPEED_MULT);
-    m_forwR.set(-rightStick_x * SPEED_MULT);
-    m_backR.set(-rightStick_x * SPEED_MULT);
+    m_forwL.set(speed * SPEED_MULT);
+    m_backL.set(speed * SPEED_MULT);
+    m_forwR.set(-speed * SPEED_MULT);
+    m_backR.set(-speed * SPEED_MULT);
   }
 
-  public void turnWheelsTo(double targetAngle) {
-    m_forwRs.set(((targetAngle - m_forwRs.getEncoder().getPosition()) * KP) - I * Math.abs(targetAngle - m_forwRs.getEncoder().getPosition()) / (targetAngle - m_forwRs.getEncoder().getPosition()));
-    m_backRs.set(((targetAngle - m_backRs.getEncoder().getPosition()) * KP) - I * Math.abs(targetAngle - m_backRs.getEncoder().getPosition()) / (targetAngle - m_backRs.getEncoder().getPosition()));
-    m_backLs.set(((targetAngle - m_backLs.getEncoder().getPosition()) * KP) - I * Math.abs(targetAngle - m_backLs.getEncoder().getPosition()) / (targetAngle - m_backLs.getEncoder().getPosition()));
-    m_forwLs.set(((targetAngle - m_forwLs.getEncoder().getPosition()) * KP) - I * Math.abs(targetAngle - m_forwLs.getEncoder().getPosition()) / (targetAngle - m_forwLs.getEncoder().getPosition()));
+  public void robotTurnTo(double targetAngle, double KP, double absoluteConstantCorrection) {
+    double error = targetAngle - gyro.getAngle();
+    turn(error * KP + absoluteConstantCorrection * Math.signum(error));
   }
 
-  public void rotateWheelsToTurn(double targetAngle) {
-    m_forwRs.set(((-Math.abs(targetAngle) - m_forwRs.getEncoder().getPosition()) * KP) - I * Math.abs(-Math.abs(targetAngle) - m_forwRs.getEncoder().getPosition()) / (-Math.abs(targetAngle) - m_forwRs.getEncoder().getPosition()));
-    m_backRs.set(((Math.abs(targetAngle) - m_backRs.getEncoder().getPosition()) * KP) - I * Math.abs(Math.abs(targetAngle) - m_backRs.getEncoder().getPosition()) / (Math.abs(targetAngle) - m_backRs.getEncoder().getPosition()));
-    m_backLs.set(((-Math.abs(targetAngle) - m_backLs.getEncoder().getPosition()) * KP) - I * Math.abs(-Math.abs(targetAngle) - m_backLs.getEncoder().getPosition()) / (-Math.abs(targetAngle) - m_backLs.getEncoder().getPosition()));
-    m_forwLs.set(((Math.abs(targetAngle) - m_forwLs.getEncoder().getPosition()) * KP) - I * Math.abs(Math.abs(targetAngle) - m_forwLs.getEncoder().getPosition()) / (Math.abs(targetAngle) - m_forwLs.getEncoder().getPosition()));
+  public void turnWheelsTo(double targetAngle, double KP, double absoluteConstantCorrection) {
+    setSteer(m_forwRs, targetAngle, KP, absoluteConstantCorrection);
+    setSteer(m_backRs, targetAngle, KP, absoluteConstantCorrection);
+    setSteer(m_backLs, targetAngle, KP, absoluteConstantCorrection);
+    setSteer(m_forwLs, targetAngle, KP, absoluteConstantCorrection);
+  }
+
+  public void rotateWheelsToTurn(double targetAngle, double KP, double absoluteConstantCorrection) {
+    targetAngle = Math.abs(targetAngle);
+    setSteer(m_forwRs, -targetAngle, KP, absoluteConstantCorrection);
+    setSteer(m_backRs, targetAngle, KP, absoluteConstantCorrection);
+    setSteer(m_backLs, -targetAngle, KP, absoluteConstantCorrection);
+    setSteer(m_forwLs, targetAngle, KP, absoluteConstantCorrection);
+  }
+
+  private void setSteer(SparkMax motor, double target, double KP, double absoluteConstantCorrection) {
+    double error = target - motor.getEncoder().getPosition();
+    motor.set(error * KP + absoluteConstantCorrection * Math.signum(error));
+  }
+
+  public AHRS getGyro() {
+    return gyro;
+  }
+
+  public void setRobotTargetAngle(double targetAngle) {
+    this.robotTargetAngle = targetAngle;
   }
 }

@@ -23,9 +23,9 @@ public class DriveCommand extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (rightStick_X.get() < 0.02) {
+    if (Math.abs(rightStick_X.get()) < 0.02) {
       Driver.getInstance().drive(leftStick_Y.get());
-    } else if (rightStick_X.get() > 0.02) {
+    } else {
       Driver.getInstance().turn(rightStick_X.get());
     }
   }
@@ -34,7 +34,7 @@ public class DriveCommand extends Command {
   @Override
   public void end(boolean interrupted) {
     Driver.getInstance().drive(0.0);
-    Driver.getInstance().turnWheelsTo(0.0);
+    Driver.getInstance().turnWheelsTo(0.0, 1 / 1000.0, 0.02);
   }
 
   // Returns true when the command should end.
