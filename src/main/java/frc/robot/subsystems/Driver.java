@@ -6,6 +6,11 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.studica.frc.AHRS;
 import com.studica.frc.AHRS.NavXComType;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Driver extends SubsystemBase {
@@ -31,6 +36,16 @@ public class Driver extends SubsystemBase {
   private SparkMax m_backRs;
   private SparkMax m_backLs;
 
+  // --- Simulation only: virtual pose shown in AdvantageScope ---
+  private static final double SIM_MAX_MPS = 15.0; // full motor output = 15 m/s
+  private static final double SIM_MAX_RAD_PER_SEC = 25.0; // full motor output = 25 rad/s
+  private final StructPublisher<Pose2d> m_posePub = NetworkTableInstance.getDefault().getStructTopic("RobotPose", Pose2d.struct).publish();
+  private double m_simX = 2.0;
+  private double m_simY = 2.0;
+  private double m_simHeading = 0.0;
+  private double m_simForward = 0.0; // m/s
+  private double m_simOmega = 0.0; // rad/s, counter-clockwise positive
+
   public Driver() {
     m_forwR = new TalonFX(1);
     m_forwL = new TalonFX(3);
@@ -45,10 +60,21 @@ public class Driver extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double avg = (m_backLs.get() + m_backRs.get() + m_forwLs.get() + m_forwRs.get()) / 4;
-    if (Math.abs(avg) <= 0) {
-      turnWheelsTo(wheelTargetAngle, 1 / 1000.0, 0.02);
+    // double avg = (m_backLs.get() + m_backRs.get() + m_forwLs.get() + m_forwRs.get()) / 4;
+    // if (Math.abs(avg) <= 0) {
+    // turnWheelsTo(wheelTargetAngle, 1 / 1000.0, 0.02);
+    // }
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    if (DriverStation.isEnabled()) {
+      double dt = 0.02;
+      m_simX += m_simForward * Math.cos(m_simHeading) * dt;
+      m_simY += m_simForward * Math.sin(m_simHeading) * dt;
+      m_simHeading += m_simOmega * dt;
     }
+    m_posePub.set(new Pose2d(m_simX, m_simY, new Rotation2d(m_simHeading)));
   }
 
   public static Driver getInstance() {
@@ -67,6 +93,9 @@ public class Driver extends SubsystemBase {
     m_backL.set(-leftStick_Y * SPEED_MULT);
     m_forwR.set(-leftStick_Y * SPEED_MULT);
     m_backR.set(-leftStick_Y * SPEED_MULT);
+
+    m_simForward = leftStick_Y * SPEED_MULT * SIM_MAX_MPS;
+    m_simOmega = 0;
   }
 
   public void turn(double speed) {
@@ -76,6 +105,9 @@ public class Driver extends SubsystemBase {
     m_backL.set(speed * SPEED_MULT);
     m_forwR.set(-speed * SPEED_MULT);
     m_backR.set(-speed * SPEED_MULT);
+
+    m_simForward = 0;
+    m_simOmega = -speed * SPEED_MULT * SIM_MAX_RAD_PER_SEC;
   }
 
   public void robotTurnTo(double targetAngle, double KP, double absoluteConstantCorrection) {
