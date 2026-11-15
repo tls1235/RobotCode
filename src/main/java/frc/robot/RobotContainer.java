@@ -5,6 +5,7 @@
 package frc.robot;
 
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.ShootCommand;
 import frc.robot.subsystems.Driver;
 import frc.robot.Constants.OperatorConstants;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -29,6 +30,9 @@ public class RobotContainer {
       // Linux sim GUI maps the right stick X to axis 3 (roboRIO uses 4)
       return RobotBase.isSimulation() ? m_driverController.getRawAxis(3) : m_driverController.getRightX();
     });
+
+    // Hold right trigger to spin up the shooter
+    m_driverController.rightTrigger().whileTrue(new ShootCommand(() -> OperatorConstants.kShootSpeedRPS));
   }
 
   public Command getAutonomousCommand() {
