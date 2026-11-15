@@ -44,7 +44,7 @@ public class Shooter extends SubsystemBase {
   }
 
   public Shooter() {
-    m_motor = new TalonFX(1);
+    m_motor = new TalonFX(5);
   }
 
   public static Shooter getInstance() {
