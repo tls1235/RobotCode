@@ -5,9 +5,8 @@ import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class Shooter extends SubsystemBase {
-  private double currentSpeed, previousState, error, derivative, integral, target_RPS = 0;
+  private double currentSpeed, previousState, error, derivative, integral, kIntegralZone, target_RPS = 0;
   private final double Kp = 0.08, Ki = 0.008, Kd = 0;
-  private final double kIntegralZone = 20; // only integrate when within this many RPS of target
 
   private static Shooter instance;
 
@@ -15,6 +14,7 @@ public class Shooter extends SubsystemBase {
 
   @Override
   public void periodic() {
+    kIntegralZone = target_RPS / 5;
     currentSpeed = m_motor.getVelocity().getValueAsDouble();
 
     // Not shooting: coast and clear the integral so the next spin-up starts clean
