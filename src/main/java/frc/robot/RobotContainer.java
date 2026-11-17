@@ -32,7 +32,7 @@ public class RobotContainer {
     });
 
     // Hold right trigger to spin up the shooter
-    m_driverController.rightTrigger().whileTrue(new ShootCommand(() -> OperatorConstants.kShootSpeedRPS));
+    m_driverController.rightTrigger().whileTrue(new ShootCommand(() -> OperatorConstants.kShootSpeedRPM));
   }
 
   public Command getAutonomousCommand() {
